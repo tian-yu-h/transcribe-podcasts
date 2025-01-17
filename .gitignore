@@ -1,0 +1,24 @@
+# Python environment
+venv/
+transcribe-podcasts/
+*.pyc
+__pycache__/
+
+# Whisper model files
+*.pt
+*.pth
+*.bin
+models/
+
+# Output files
+*.txt
+*.json
+
+# Audio files
+*.mp3
+*.wav
+*.m4a
+*.flac
+
+# macOS system files
+.DS_Store
