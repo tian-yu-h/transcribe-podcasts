@@ -1,56 +1,41 @@
 import os
 import re
 import string
+import nltk
 
 # ------------------------------------------------------------------------------
 # 1. Define the cleaning function
 # ------------------------------------------------------------------------------
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+
 FILLER_WORDS = ["um", "uh", "like", "ah", "er", "yeah", "good", "oh", "yes", "bye"]
+STOP_WORDS = set(stopwords.words('english'))
 
 def clean_line(line: str) -> str:
-    """
-    Cleans a single line of transcript text by:
-    - Removing timestamps (e.g., [0:00:00 --> 0:00:06])
-    - Optionally removing extra punctuation or sponsor tags
-    - Normalizing spaces
-    - Converting to lowercase
-    """
-    
-    # 1. Remove timestamp format [0:00:00 --> 0:00:06]
-    #    Regex explanation: 
-    #      \[          => literal '['
-    #      .*?         => non-greedy match for anything
-    #      \]          => literal ']'
-    #    The question mark makes it non-greedy, so it doesn't over-match
+   
     line_no_timestamps = re.sub(r"\[.*?\]", "", line)
-    
-    # 2. Convert to lowercase (optional: if you need consistent casing)
-    line_lower = line_no_timestamps.lower()
-    
-    # 3. Remove extra punctuation if you like (beyond standard .!?)
-    #    Example: remove everything except alpha-numeric, some punctuation, and spaces
-    #    We'll keep typical punctuation like . , ! ? - ' 
-    #    If you want to remove them all, adjust the regex accordingly.
-    #    For a simpler approach, let's just remove "excess" punctuation, but
-    #    keep basic punctuation for readability.
-    #    In many NLP tasks, you might remove them entirely or do tokenization separately.
-    
-    #    This pattern replaces sequences of [^a-z0-9,.?!' -] with an empty string
-    #    The dash needs to be escaped or placed at the end in the class
     allowed_chars = r"[^a-z0-9,.?!'\-\s]"
-    line_clean_punct = re.sub(allowed_chars, "", line_lower)
+    line_clean_punct = re.sub(allowed_chars, "", line_no_timestamps.lower())
     
-    #4 Tokenize   
-    tokens = line_clean_punct.split()
+    #create a regex pattern for filler words with word boundaries
+    filler_pattern = r'\b(?:' + '|'.join(re.escape(word) for word in FILLER_WORDS) + r')\b'
+    
+    #remove filler words (case-insensitive)
+    line_no_fillers = re.sub(filler_pattern, '', line_clean_punct, flags=re.IGNORECASE)
 
-    # 5. Remove filler words (single-word approach)
-    tokens_no_fillers = [t for t in tokens if t not in FILLER_WORDS]
+    #4 Tokenize   
+    tokens = line_no_fillers.split()
+
+
+    # remove standard english stopwords
+    tokens_no_stop = [t for t in tokens if t not in STOP_WORDS]
 
     # 6. Rejoin tokens
-    line_no_fillers = " ".join(tokens_no_fillers)
+    line_no_stop = " ".join(tokens_no_stop)
 
     # 7. Remove extra spaces
-    line_final = re.sub(r"\s+", " ", line_no_fillers)
+    line_final = re.sub(r"\s+", " ", line_no_stop)
     
     # Now you have a cleaned line
     return line_final
@@ -133,7 +118,7 @@ if __name__ == "__main__":
         print(chunk)
         print()
     
-    # 5. (Optional) Save your cleaned or segmented output to a file
+    # 5. Save your cleaned or segmented output to a file
     with open("cleaned_transcript_all.txt", "w", encoding="utf-8") as out_f:
         for line in cleaned_lines:
             out_f.write(line + "\n")

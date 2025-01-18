@@ -12,6 +12,7 @@ models/
 
 # Output files
 *.txt
+!requirements.txt
 *.json
 
 # Audio files
