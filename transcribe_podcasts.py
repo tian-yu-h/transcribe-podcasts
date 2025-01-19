@@ -56,7 +56,7 @@ def transcribe_audio_with_timestamps(audio_path, model_size="base", language=Non
 
 if __name__ == "__main__":
     # Example usage
-    audio_file = "podcasts/MSR901_ACast.mp3"
+    audio_file = "podcasts/5e26c02b2af435e1158b1a0f8e81c404.mp3"
     transcribe_audio_with_timestamps(
         audio_file,
         model_size="base",  # Options: tiny, base, small, medium, large

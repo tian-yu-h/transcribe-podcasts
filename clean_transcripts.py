@@ -94,7 +94,10 @@ if __name__ == "__main__":
     transcript_files = [
         "transcripts/MSR901_ACast.txt",
         "transcripts/TheFoodProgramme-20250103.txt",
-        "transcripts/VMP9180343055.txt"
+        "transcripts/VMP9180343055.txt",
+        "transcripts/CAD2257515763.txt",
+        "transcripts/BA_Dinner_SOS_S3E02_Mara_Mix2_011325.txt",
+        "transcripts/5e26c02b2af435e1158b1a0f8e81c404.txt"
     ]
     
     # 1. Read & combine
