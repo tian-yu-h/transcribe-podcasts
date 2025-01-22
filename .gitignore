@@ -23,3 +23,11 @@ models/
 
 # macOS system files
 .DS_Store
+
+# api key
+config.py
+
+# Environment variables
+.env
+.env.local
+.env.*
