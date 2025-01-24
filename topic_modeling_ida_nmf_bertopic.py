@@ -1,6 +1,6 @@
 # Example: reading segmented transcript from file
 segments = []
-with open("segmented_transcript_all.txt", "r", encoding="utf-8") as f:
+with open("cleaned_combined_topics.txt", "r", encoding="utf-8") as f:
     for line in f:
         line = line.strip()
         # We skip empty lines (those just used as separators)

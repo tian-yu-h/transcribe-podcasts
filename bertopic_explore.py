@@ -41,20 +41,20 @@ vectorizer_model = LemmaCountVectorizer(stop_words = "english")
 keybert_model = KeyBERTInspired()
 
 #create a MaximaMarginalRelevance model for diversity
-mmr_model = MaximalMarginalRelevance(diversity=0.3)
+mmr_model = MaximalMarginalRelevance(diversity=0.8)
 
 #Combine the two representation models
 representation_model = [keybert_model, mmr_model]
 
-umap_model = UMAP(n_neighbors=15,
+umap_model = UMAP(n_neighbors=20,
                   n_components=5,
                   min_dist=0.1,
                   random_state=42)
-#If you get too many tiny clusters, try increasing n_neighbors.
+#If you want to get many tiny clusters, try increasing n_neighbors.
 #If you want more granular topics, decrease n_neighbors.
 #If topics are overlapping too much, try lowering min_dist.
 
-hdbscan_model = hdbscan.HDBSCAN(min_cluster_size=10,
+hdbscan_model = hdbscan.HDBSCAN(min_cluster_size=5,
                                 min_samples=2,
                                 metric='euclidean',
                                 cluster_selection_method='eom')
@@ -92,7 +92,7 @@ topic_labels = topic_model.generate_topic_labels(nr_words=3,
 topic_model.set_topic_labels(topic_labels)
 
 # Manually selected some interesting topics to prevent information overload
-topics_of_interest = [1, 3, 6, 7, 10, 11, 12, 13, 15, 16, 19, 20, 22, 23, 25, 26, 28, 29]
+topics_of_interest = [7, 8, 11, 12, 13, 15, 16, 18, 20, 22, 23, 25, 26, 28, 29]
 
 # Visualize documents
 topic_model.visualize_documents(
