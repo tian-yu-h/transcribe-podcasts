@@ -23,8 +23,8 @@ def transcribe_audio_with_timestamps(audio_path, model_size="base", language=Non
     # Create output paths
     audio_path = Path(audio_path)
     base_path = audio_path.with_suffix('')
-    txt_path = base_path.with_suffix('.txt')
-    json_path = base_path.with_name(f"{base_path.stem}_full.json")
+    txt_path = Path("transcripts") / f"{base_path.stem}.txt" 
+    #json_path = base_path.with_name(f"{base_path.stem}_full.json")
 
     # Load model
     print(f"Loading Whisper {model_size} model...")
@@ -39,8 +39,8 @@ def transcribe_audio_with_timestamps(audio_path, model_size="base", language=Non
     )
 
     # Save full result as JSON
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2, ensure_ascii=False)
+    #with open(json_path, 'w', encoding='utf-8') as f:
+     #   json.dump(result, f, indent=2, ensure_ascii=False)
 
     # Save formatted transcript with timestamps
     with open(txt_path, 'w', encoding='utf-8') as f:
@@ -52,13 +52,34 @@ def transcribe_audio_with_timestamps(audio_path, model_size="base", language=Non
 
     print(f"\nTranscription completed!")
     print(f"Plain transcript saved to: {txt_path}")
-    print(f"Full data saved to: {json_path}")
+    #print(f"Full data saved to: {json_path}")
 
 if __name__ == "__main__":
     # Example usage
-    audio_file = "podcasts/5e26c02b2af435e1158b1a0f8e81c404.mp3"
-    transcribe_audio_with_timestamps(
-        audio_file,
-        model_size="base",  # Options: tiny, base, small, medium, large
-        language="en"       # Optional: specify language or None for auto-detection
-    )
+    podcast_dir = Path("podcasts")
+    transcript_dir = Path("transcripts")
+    audio_files = list(podcast_dir.glob("*.mp3"))
+
+    print(f"Found {len(audio_files)} audio files")
+
+   # Process each file
+    for audio_file in audio_files:
+        # Check if transcript already exists
+        transcript_path = transcript_dir / f"{audio_file.stem}.txt"
+        
+        if transcript_path.exists():
+            print(f"Skipping {audio_file.name} - transcript already exists")
+            continue
+            
+        print(f"\nProcessing: {audio_file}")
+        try:
+            transcribe_audio_with_timestamps(
+                str(audio_file),
+                model_size="base",
+                language="en"
+            )
+        except Exception as e:
+            print(f"Error processing {audio_file}: {e}")
+            continue
+    
+    print("\nAll files processed!")
