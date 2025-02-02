@@ -1,6 +1,11 @@
+import os
 #load clean segments from transcripts
+input_folder = "cleaned_transcripts"
+input_file = "combined_cleaned_lines.txt"
+file_path = os.path.join(input_folder, input_file)
+
 segments = []
-with open("segmented_transcript_all.txt", "r", encoding="utf-8") as f:
+with open(file_path, "r", encoding="utf-8") as f:
     for line in f:
         line = line.strip()
         # We skip empty lines (those just used as separators)
@@ -46,7 +51,7 @@ mmr_model = MaximalMarginalRelevance(diversity=0.8)
 #Combine the two representation models
 representation_model = [keybert_model, mmr_model]
 
-umap_model = UMAP(n_neighbors=20,
+umap_model = UMAP(n_neighbors=30,
                   n_components=5,
                   min_dist=0.1,
                   random_state=42)
@@ -54,7 +59,7 @@ umap_model = UMAP(n_neighbors=20,
 #If you want more granular topics, decrease n_neighbors.
 #If topics are overlapping too much, try lowering min_dist.
 
-hdbscan_model = hdbscan.HDBSCAN(min_cluster_size=5,
+hdbscan_model = hdbscan.HDBSCAN(min_cluster_size=3,
                                 min_samples=2,
                                 metric='euclidean',
                                 cluster_selection_method='eom')
@@ -76,7 +81,12 @@ topic_model = BERTopic(language="english",
 
 topics, _ = topic_model.fit_transform(segments)
 topic_info = topic_model.get_topic_info()
+
+import pandas as pd
+pd.set_option('display.max_rows', None) 
+
 print(topic_info)
+topic_info.to_csv('topic_info_full.csv', index=True)
 
 # show top words for topic 0
 #print(topic_model.get_topic(0))
@@ -92,14 +102,31 @@ topic_labels = topic_model.generate_topic_labels(nr_words=3,
 topic_model.set_topic_labels(topic_labels)
 
 # Manually selected some interesting topics to prevent information overload
-topics_of_interest = [7, 8, 11, 12, 13, 15, 16, 18, 20, 22, 23, 25, 26, 28, 29]
+topics_of_interest = [1, 2, 3, 5, 8, 9, 17, 18, 27, 29, 33, 38, 41, 52]
 
-# Visualize documents
+top_20_topics = topic_info[topic_info['Topic'] != -1].head(20)['Topic'].tolist()
+
+top_20_topics = topic_info[topic_info['Topic'] != -1].head(20)['Topic'].tolist()
+combined_topics = list(set(top_20_topics + topics_of_interest))
+combined_topics.sort()
+
+# Numbers you want to remove
+numbers_to_remove = [10, 7]
+
+# Remove these numbers from combined_topics
+combined_topics = [x for x in combined_topics if x not in numbers_to_remove]
+
+# 2. Document visualization
 topic_model.visualize_documents(
-    segments, 
-    embeddings=embeddings, 
-    hide_annotations=False, 
-    topics=topics_of_interest,
+    segments,
+    embeddings=embeddings,
+    topics=combined_topics, #can be changed to topic_of_interest or top_20_topics
+    hide_annotations=False,
     custom_labels=True
-)
+).show()
+
+
+topics, probs = topic_model.fit_transform(segments)
+hierarchical_topics = topic_model.hierarchical_topics(segments)
+topic_model.visualize_hierarchy(hierarchical_topics=hierarchical_topics)
 
