@@ -66,7 +66,7 @@ def load_podcast_data(file_path: str) -> List[Document]:
     return documents
 
 # Configure LlamaIndex settings
-Settings.chunk_size = 512
+Settings.chunk_size = 600
 Settings.chunk_overlap = 50
 
 # Load documents
